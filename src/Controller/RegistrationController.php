@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Project;
+use App\Entity\ProjectUser;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,7 +29,22 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
+            // Creo un proyecto personal para el nuevo usuario
+            // y una relación project_user (además de crearse el nuevo usuario)
+            $project = new Project();
+            $project->setName("Proyecto personal de " . $user->getUsername());
+            $project->setScope("personal");
+
+            $projectUser = new ProjectUser();
+            $projectUser->setProject($project);
+            $projectUser->setUser($user);
+            $projectUser->setRelationType("creador");
+
             $entityManager->persist($user);
+            $entityManager->flush();
+            $entityManager->persist($project);
+            $entityManager->flush();
+            $entityManager->persist($projectUser);
             $entityManager->flush();
 
             // do anything else you need here, like send an email

@@ -19,24 +19,9 @@ class TaskType extends AbstractType
             ->add('limitDate', null, [
                 'widget' => 'single_text',
             ])
-            ->add('endDate', null, [
-                'widget' => 'single_text',
-            ])
             ->add('project', EntityType::class, [
                 'class' => Project::class,
-                'choice_label' => 'id',
-            ])
-            ->add('creator', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-            ])
-            ->add('assigned', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-            ])
-            ->add('finisher', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
+                'choice_label' => 'name',
             ])
         ;
     }

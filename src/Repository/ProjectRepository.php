@@ -16,6 +16,21 @@ class ProjectRepository extends ServiceEntityRepository
         parent::__construct($registry, Project::class);
     }
 
+    /**
+     * @return Project[] Returns the personal project of an user
+     */
+    public function findPersonalProject($user): array
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('App\Entity\ProjectUser', 'pu', 'WITH', 'p.id = pu.project')
+            ->where('p.scope = :scope AND pu.user = :userId')
+            ->setParameter('scope', 'personal')
+            ->setParameter('userId', $user)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     //    /**
     //     * @return Project[] Returns an array of Project objects
     //     */

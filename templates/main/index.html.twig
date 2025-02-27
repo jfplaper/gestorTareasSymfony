@@ -1,20 +1,51 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello MainController!{% endblock %}
+{% block title %}GestorTareas - Inicio{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    {% if app.user %}
+		<h1>Proyecto personal / Tareas personales</h1>
+		<a href="{{ path('app_task_new') }}">Crear tarea personal</a>
+		<br>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Descripción</th>
+					<th>Fecha límite</th>
+					<th>Fecha de entrega</th>
+                    <th>Marcada/finaliza por</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for task in tasks %}
+				<tr>
+					{% if task.enddate is null %}
+                        <td style="text-decoration: none; color: black;">{{ task.description }}</td>
+                    {% else %}
+                        <td style="text-decoration: line-through; color: gray;">{{ task.description }}</td>
+                    {% endif %}
+					<td>{{ task.limitdate ? task.limitdate|date('Y-m-d') : '' }}</td>
+					<td>{{ task.enddate ? task.enddate|date('Y-m-d') : '' }}</td>
+                    <td>{{ task.finisher ? task.finisher.username : '' }}</td>
+					<td>
+						<a href="{{ path('app_task_edit', {'id': task.id}) }}">Editar</a>&nbsp;
+						<a href="{{ path('app_task_delete', {'id': task.id}) }}">Eliminar</a>&nbsp;
+                        <a href="{{ path('app_task_completed', {'id': task.id}) }}">Marcar/Desmarcar</a>
+					</td>
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="5">No tienes tareas personales</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		<br>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/Usuario/Desktop/misymfony/gestor_tareas/src/Controller/MainController.php</code></li>
-        <li>Your template at <code>C:/Users/Usuario/Desktop/misymfony/gestor_tareas/templates/main/index.html.twig</code></li>
-    </ul>
-</div>
+		<h1>Mis proyectos</h1>
+	{% else %}
+		<img src="./images/showcase.png" alt="Imagen de tareas" width="auto" height="300" />
+	{% endif %}
 {% endblock %}
