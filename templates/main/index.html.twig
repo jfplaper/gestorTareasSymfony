@@ -14,7 +14,7 @@
 					<th>Descripción</th>
 					<th>Fecha límite</th>
 					<th>Fecha de entrega</th>
-                    <th>Marcada/finaliza por</th>
+                    <th>Marcada/finalizada por</th>
 					<th>Acciones</th>
 				</tr>
 			</thead>
@@ -44,7 +44,31 @@
 		</table>
 		<br>
 
-		<h1>Mis proyectos</h1>
+		<h1>Mis invitaciones</h1>
+		<ul>
+		{% for invitation in invitations %}
+			<li>
+				Invitación de {{ invitation.emisor.username }} al proyecto {{ invitation.project.name }}
+				<a href="#">Aceptar</a> - 
+				<a href="#">Rechazar</a>
+			</li>
+		{% else %}
+			<li>Actualmente no tienes invitaciones</li>
+		{% endfor %}
+		</ul>
+		<br><br>
+
+		<h1>Proyectos donde colaboro</h1>
+		<ul>
+		{% for project in projects %}
+			<li>
+				{{ project.name }} - 
+				<a href="#">Acceder</a>
+			</li>
+		{% else %}
+			<li>Actualmente no estás en proyectos colectivos</li>
+		{% endfor %}
+		</ul>
 	{% else %}
 		<img src="./images/showcase.png" alt="Imagen de tareas" width="auto" height="300" />
 	{% endif %}

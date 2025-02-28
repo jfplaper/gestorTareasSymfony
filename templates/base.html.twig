@@ -19,7 +19,7 @@
                     <a href="{{ path('app_main') }}">Inicio</a>
                     {% for role in app.user.roles %}
                         {% if role == "ROLE_ADMIN" %}
-                            <a href="{{ path('app_user_index') }}">Área del administrador</a>
+                            <a href="{{ path('app_user') }}">Área del administrador</a>
 						{% endif %}
 					{% endfor %}
 				</div>

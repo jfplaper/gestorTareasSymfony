@@ -31,6 +31,21 @@ class ProjectRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return Project[] Returns the "colectivo" projects of an user
+     */
+    public function findCollectiveProjects($user): array
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('App\Entity\ProjectUser', 'pu', 'WITH', 'p.id = pu.project')
+            ->where('p.scope = :scope AND pu.user = :userId')
+            ->setParameter('scope', 'colectivo')
+            ->setParameter('userId', $user)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     //    /**
     //     * @return Project[] Returns an array of Project objects
     //     */
