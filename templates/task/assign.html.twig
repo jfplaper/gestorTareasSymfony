@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}GestorTareas - Tarea{% endblock %}
+
+{% block body %}
+    <h1>Asignar tarea a...</h1>
+    <ul>
+		{% for user in users %}
+			<li>
+				{{ user.username }} - 
+                <a href="{{ path('app_task_confirm_assignment', {'id': task.id, 'user': user.id}) }}">Seleccionar</a>
+			</li>
+			<br>
+		{% else %}
+			<li>No hay usuarios a quienes asignar la tarea</li>
+		{% endfor %}
+	</ul>
+    <br>
+    <a href="{{ path('app_main') }}">Salir</a>
+{% endblock %}

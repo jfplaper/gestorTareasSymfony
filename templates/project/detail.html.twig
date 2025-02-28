@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}GestorTareas - Proyecto{% endblock %}
+
+{% block body %}
+    <h1>{{ project.name }}</h1>
+    <a href="{{ path('app_task_new', {'id': project.id}) }}">Crear tarea colectiva</a>
+    <br>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Fecha límite</th>
+                <th>Fecha de entrega</th>
+                <th>Asignada a</th>
+                <th>Marcada/finalizada por</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                {% if task.enddate is null %}
+                    <td style="text-decoration: none; color: black;">{{ task.description }}</td>
+                {% else %}
+                    <td style="text-decoration: line-through; color: gray;">{{ task.description }}</td>
+                {% endif %}
+                <td>{{ task.limitdate ? task.limitdate|date('Y-m-d') : '' }}</td>
+                <td>{{ task.enddate ? task.enddate|date('Y-m-d') : '' }}</td>
+                <td>{{ task.assigned ? task.assigned.username : '' }}</td>
+                <td>{{ task.finisher ? task.finisher.username : '' }}</td>
+                <td>
+                    <a href="{{ path('app_task_edit', {'id': task.id}) }}">Editar</a>&nbsp;
+                    <a href="{{ path('app_task_eliminate', {'id': task.id}) }}">Eliminar</a>&nbsp;
+                    <a href="{{ path('app_task_assign', {'id': task.id, 'project': project.id}) }}">Asignar</a>&nbsp;
+                    <a href="{{ path('app_task_completed_collective', {'id': task.id}) }}">Marcar/Desmarcar</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">No hay tareas</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="{{ path('app_main') }}">Volver</a>
+{% endblock %}

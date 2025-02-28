@@ -5,7 +5,9 @@
 {% block body %}
     {% if app.user %}
 		<h1>Proyecto personal / Tareas personales</h1>
-		<a href="{{ path('app_task_new') }}">Crear tarea personal</a>
+		{% if project is not null %}
+			<a href="{{ path('app_task_new', {'id': project.id}) }}">Crear tarea personal</a>
+		{% endif %}
 		<br>
 
 		<table class="table">
@@ -31,7 +33,7 @@
                     <td>{{ task.finisher ? task.finisher.username : '' }}</td>
 					<td>
 						<a href="{{ path('app_task_edit', {'id': task.id}) }}">Editar</a>&nbsp;
-						<a href="{{ path('app_task_delete', {'id': task.id}) }}">Eliminar</a>&nbsp;
+						<a href="{{ path('app_task_eliminate', {'id': task.id}) }}">Eliminar</a>&nbsp;
                         <a href="{{ path('app_task_completed', {'id': task.id}) }}">Marcar/Desmarcar</a>
 					</td>
 				</tr>
@@ -49,9 +51,10 @@
 		{% for invitation in invitations %}
 			<li>
 				Invitación de {{ invitation.emisor.username }} al proyecto {{ invitation.project.name }}
-				<a href="#">Aceptar</a> - 
-				<a href="#">Rechazar</a>
+				<a href="{{ path('app_invitation_change_state', {'id': invitation.id, 'state': 'aceptada'}) }}">Aceptar</a> - 
+				<a href="{{ path('app_invitation_change_state', {'id': invitation.id, 'state': 'rechazada'}) }}">Rechazar</a>
 			</li>
+			<br>
 		{% else %}
 			<li>Actualmente no tienes invitaciones</li>
 		{% endfor %}
@@ -63,7 +66,7 @@
 		{% for project in projects %}
 			<li>
 				{{ project.name }} - 
-				<a href="#">Acceder</a>
+				<a href="{{ path('app_project_detail', {'id': project.id}) }}">Acceder</a>
 			</li>
 		{% else %}
 			<li>Actualmente no estás en proyectos colectivos</li>

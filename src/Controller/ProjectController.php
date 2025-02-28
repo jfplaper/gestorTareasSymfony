@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Entity\ProjectUser;
 use App\Repository\ProjectRepository;
+use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,5 +49,18 @@ final class ProjectController extends AbstractController
         }
 
         return $this->redirectToRoute('app_main', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/detail', name: 'app_project_detail', methods: ['GET'])]
+    public function detail(Project $project, TaskRepository $taskRepository): Response
+    {
+        // Nota previa: NO usar nombres como show, edit, new si no son los creados automáticamente por make:crud
+        // Obtengo las tareas para ese proyecto colectivo en concreto
+        $tasks = $taskRepository->findBy(["project" => $project]);
+
+        return $this->render('project/detail.html.twig', [
+            'project' => $project,
+            'tasks' => $tasks
+        ]);
     }
 }

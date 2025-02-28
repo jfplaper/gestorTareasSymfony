@@ -33,6 +33,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * @return User[] Returns the users of a collective project
+     */
+    public function findUsersCollectiveProject($project): array
+    {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('App\Entity\ProjectUser', 'pu', 'WITH', 'u.id = pu.user')
+            ->where('pu.project = :projectId')
+            ->setParameter('projectId', $project)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

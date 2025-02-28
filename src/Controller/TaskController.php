@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Project;
 use App\Entity\Task;
+use App\Entity\User;
 use App\Form\TaskType;
 use App\Repository\ProjectRepository;
 use App\Repository\TaskRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,8 +26,8 @@ final class TaskController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_task_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ProjectRepository $projectRepository): Response
+    #[Route('/{id}/new', name: 'app_task_new', methods: ['GET', 'POST'])]
+    public function new(Project $project, Request $request, EntityManagerInterface $entityManager): Response
     {
         $task = new Task();
         $form = $this->createForm(TaskType::class, $task);
@@ -33,12 +36,13 @@ final class TaskController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Establezco algunos valores de propiedades yo, no a través del formulario
             $task->setEndDate(null);
-            // Obtengo el proyecto personal del usuario logueado (pero me lo da en un array, por eso pongo [0])
-            $personalProject = $projectRepository->findPersonalProject($this->getUser());
-            $task->setProject($personalProject[0]);
+            $task->setProject($project);
             $task->setCreator($this->getUser());
-            $task->setAssigned($this->getUser());
             $task->setFinisher(null);
+            if ($project->getScope() == "personal")
+                $task->setAssigned($this->getUser());
+            else
+                $task->setAssigned(null);
 
             $entityManager->persist($task);
             $entityManager->flush();
@@ -53,7 +57,7 @@ final class TaskController extends AbstractController
     }
 
     #[Route('/{id}/completed', name: 'app_task_completed', methods: ['GET', 'POST'])]
-    public function completed(Task $task, Request $request, EntityManagerInterface $entityManager, ProjectRepository $projectRepository): Response
+    public function completed(Task $task, EntityManagerInterface $entityManager): Response
     {
         if (!$task->getEndDate()) {
             $task->setEndDate(new \DateTime());
@@ -62,6 +66,47 @@ final class TaskController extends AbstractController
             $task->setEndDate(null);
             $task->setFinisher(null);
         }
+
+        $entityManager->persist($task);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_main', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/completed/collective', name: 'app_task_completed_collective', methods: ['GET', 'POST'])]
+    public function completedCollective(Task $task, EntityManagerInterface $entityManager): Response
+    {
+        if (!$task->getEndDate()) {
+            $task->setEndDate(new \DateTime());
+            $task->setFinisher($this->getUser());
+        } elseif (in_array("ROLE_ADMIN", $this->getUser()->getRoles())) {
+            $task->setEndDate(null);
+            $task->setFinisher(null);
+        }
+
+        $entityManager->persist($task);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_main', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/assign/{id}/{project}', name: 'app_task_assign', methods: ['GET', 'POST'])]
+    public function assign(Task $task, Project $project, UserRepository $userRepository): Response
+    {
+        // Obtengo los usuarios de ese proyecto colectivo
+        $users = $userRepository->findUsersCollectiveProject($project);
+
+        return $this->render('task/assign.html.twig', [
+            'task' => $task,
+            'users' => $users
+        ]);
+    }
+
+    #[Route('/assign/confirm/{id}/{user}', name: 'app_task_confirm_assignment', methods: ['GET', 'POST'])]
+    public function send(Task $task, User $user, EntityManagerInterface $entityManager): Response
+    {
+        // Si no llamo al parámetro {user} y pongo idUser por ejemplo ya no detecta la entidad y no va
+        $task->setAssigned($user);
 
         $entityManager->persist($task);
         $entityManager->flush();
@@ -95,14 +140,12 @@ final class TaskController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_task_delete', methods: ['POST'])]
-    public function delete(Request $request, Task $task, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/eliminate', name: 'app_task_eliminate', methods: ['GET'])]
+    public function eliminate(Task $task, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$task->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($task);
-            $entityManager->flush();
-        }
+        $entityManager->remove($task);
+        $entityManager->flush();
 
-        return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_main', [], Response::HTTP_SEE_OTHER);
     }
 }
