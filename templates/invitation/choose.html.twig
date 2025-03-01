@@ -10,6 +10,7 @@
 				{{ project.name }} - 
                 <a href="{{ path('app_invitation_send', {'id': project.id, 'user': user.id}) }}">Seleccionar</a>
 			</li>
+			<br>
 		{% else %}
 			<li>Actualmente no hay proyectos colectivos</li>
 		{% endfor %}

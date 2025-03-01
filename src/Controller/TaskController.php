@@ -6,8 +6,6 @@ use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Form\TaskType;
-use App\Repository\ProjectRepository;
-use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,14 +16,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/task')]
 final class TaskController extends AbstractController
 {
-    #[Route(name: 'app_task_index', methods: ['GET'])]
-    public function index(TaskRepository $taskRepository): Response
-    {
-        return $this->render('task/index.html.twig', [
-            'tasks' => $taskRepository->findAll(),
-        ]);
-    }
-
     #[Route('/{id}/new', name: 'app_task_new', methods: ['GET', 'POST'])]
     public function new(Project $project, Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -103,7 +93,7 @@ final class TaskController extends AbstractController
     }
 
     #[Route('/assign/confirm/{id}/{user}', name: 'app_task_confirm_assignment', methods: ['GET', 'POST'])]
-    public function send(Task $task, User $user, EntityManagerInterface $entityManager): Response
+    public function confirmAssignment(Task $task, User $user, EntityManagerInterface $entityManager): Response
     {
         // Si no llamo al parámetro {user} y pongo idUser por ejemplo ya no detecta la entidad y no va
         $task->setAssigned($user);
@@ -112,14 +102,6 @@ final class TaskController extends AbstractController
         $entityManager->flush();
 
         return $this->redirectToRoute('app_main', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/{id}', name: 'app_task_show', methods: ['GET'])]
-    public function show(Task $task): Response
-    {
-        return $this->render('task/show.html.twig', [
-            'task' => $task,
-        ]);
     }
 
     #[Route('/{id}/edit', name: 'app_task_edit', methods: ['GET', 'POST'])]
@@ -131,7 +113,7 @@ final class TaskController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_main', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('task/edit.html.twig', [

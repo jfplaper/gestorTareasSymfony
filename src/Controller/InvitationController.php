@@ -6,7 +6,6 @@ use App\Entity\Invitation;
 use App\Entity\Project;
 use App\Entity\ProjectUser;
 use App\Entity\User;
-use App\Repository\InvitationRepository;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,16 +15,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class InvitationController extends AbstractController
 {
-    #[Route('/invitation', name: 'app_invitation')]
-    public function index(InvitationRepository $invitationRepository): Response
-    {
-        $invitations = $invitationRepository->findAll();
-
-        return $this->render('invitation/index.html.twig', [
-            'invitations' => $invitations
-        ]);
-    }
-
     #[Route('/{id}/invitation/choose', name: 'app_invitation_choose_project', methods: ['GET', 'POST'])]
     public function chooseProject(User $user, ProjectRepository $projectRepository): Response
     {
